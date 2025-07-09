@@ -1,0 +1,26 @@
+stages:
+  - build
+  - deploy
+
+variables:
+  DEFAULT_ENV: "dev"
+  APP_VERSION: "latest"
+  RUN_SECURITY_SCAN: "false"
+
+build_job:
+  stage: build
+  script:
+    - echo "🔨 Building app version $APP_VERSION for $DEFAULT_ENV..."
+    - mkdir build_output
+    - echo "build-$APP_VERSION-$DEFAULT_ENV" > build_output/build.txt
+  artifacts:
+    paths:
+      - build_output/
+
+deploy_job:
+  stage: deploy
+  script:
+    - chmod +x deploy/deploy.sh
+    - ./deploy/deploy.sh "$DEFAULT_ENV" "$APP_VERSION" "$RUN_SECURITY_SCAN"
+  needs: ["build_job"]
+  when: manual
